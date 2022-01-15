@@ -1,5 +1,6 @@
 {
     "name": "assist bot",
+    "repository": "https://github.com/Usernob/assist_telegram_bot.git"
     "logo": "https://telegra.ph//file/5eb650a8909b82634d09e.jpg",
     "description": "my personal assist telegram bot",
     "keywords": [
