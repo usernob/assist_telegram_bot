@@ -1,18 +1,26 @@
 from pyrogram import Client, filters
 from config import bot_token,api_id,api_hash,sudo
-
+from pyrogram.types import InlineKeyboardMarkup,InlineKeyboardButton
 bot = Client(
         "my_bot",
         api_id = api_id,
         api_hash = api_hash,
-        plugins = dict(root = ".plugins"),
-        bot_token = bot_token
+        bot_token = bot_token,
+        plugins = dict(root = "plugins")
     )
 
 
 @bot.on_message(filters.command('start'))
 async def start(bot,msg):
-    await msg.reply('hello what can i help you?')
+    await msg.reply(
+        'hello what can i help you?',
+        reply_markup = InlineKeyboardMarkup([[
+            InlineKeyboardButton(
+                'download',
+                switch_inline_query_current_chat = 'yts never gonna give you up'
+            )
+        ]])
+    )
     
 @bot.on_message()
 async def allmsg(bot,msg):

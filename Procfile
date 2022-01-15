@@ -1,2 +1,1 @@
-worker: python3 nobot/main.py
-
+worker: python3 nobot
