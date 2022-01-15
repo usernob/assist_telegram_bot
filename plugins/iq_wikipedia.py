@@ -36,8 +36,14 @@ async def wiki_handler(bot,msg):
                     description = url
                 )
             )
+    if result == []:
+        info = 'sorry no results'
+    else:
+        info = ''
+    
     await msg.answer(
         results = result,
-        cache_time = 10
+        switch_pm_text = info,
+        switch_pm_parameter = 'start'
     )
     

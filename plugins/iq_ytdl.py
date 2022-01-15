@@ -55,65 +55,73 @@ anda download sendiri silahkan tekan tombol dibawah
 async def ytdownload_handler(bot, msg):
     result = []
     query = msg.matches[0].group(2)
-    base = pafy.new(query)
-    stream = base.allstreams
-    for s in stream:
-        print(s)
-        message = f'{s.quality} - {s.extension}\n{round(s.get_filesize()/1024/1024, 2)} MB'
-        if s.mediatype == 'normal':
-            if s.get_filesize() >= 2000000000:
-                result.append(
-                    InlineQueryResultArticle(
-                        title = 'Video',
-                        input_message_content = InputTextMessageContent(
-                            toLarge.format(types = 'video')             
-                        ),
-                        description = message,
-                        reply_markup = InlineKeyboardMarkup(
-                            [[
-                                InlineKeyboardButton(
-                                    'download',
-                                    url = s.url
-                                )
-                            ]]
-                        )
+    try:
+        base = pafy.new(query)
+    except Excepttion as e:
+        await msg.answer(
+            results = result,
+            switch_pm_text = "sorry no results",
+            switch_pm_parameter = 'start'
+        )
+    video = base.streams
+    audio = base.audiostreams
+    print(base.allstreams)
+    for s in video:
+        message = f'{s.resolution} - {s.extension}\n{round(s.get_filesize()/1024/1024, 2)} MB'
+        if s.get_filesize() >= 2000000000:
+            result.append(
+                InlineQueryResultArticle(
+                    title = 'Video',
+                    input_message_content = InputTextMessageContent(
+                        toLarge.format(types = 'video')             
+                    ),
+                    description = message,
+                    reply_markup = InlineKeyboardMarkup(
+                        [[
+                            InlineKeyboardButton(
+                                'download',
+                                url = s.url
+                            )
+                        ]]
                     )
                 )
-            else:
-                result.append(
-                    InlineQueryResultVideo(
-                        video_url = s.url,
-                        title = 'Video',
-                        thumb_url = base.thumb,
-                        description = message,
-                        caption = message
+            )
+        else:
+            result.append(
+                InlineQueryResultVideo(
+                    video_url = s.url,
+                    title = 'Video',
+                    thumb_url = base.thumb,
+                    description = message,
+                    caption = message
+                )
+            )
+    for s in audio:
+        message = f'{s.bitrate} - {s.extension}\n{round(s.get_filesize()/1024/1024, 2)} MB'
+        if s.get_filesize() >= 2000000000:
+            result.append(
+                InlineQueryResultArticle(
+                    title = base.title,
+                    input_message_content = InputTextMessageContent(
+                        toLarge.format(types = 'audio')             
+                    ),
+                    description = message,
+                    reply_markup = InlineKeyboardMarkup(
+                        [[
+                            InlineKeyboardButton(
+                                'download',
+                                url = s.url
+                            )
+                        ]]
                     )
                 )
-        elif s.mediatype == 'audio':
-            if s.get_filesize() >= 2000000000:
-                result.append(
-                    InlineQueryResultArticle(
-                        title = 'Audio',
-                        input_message_content = InputTextMessageContent(
-                            toLarge.format(types = 'audio')             
-                        ),
-                        description = message,
-                        reply_markup = InlineKeyboardMarkup(
-                            [[
-                                InlineKeyboardButton(
-                                    'download',
-                                    url = s.url
-                                )
-                            ]]
-                        )
-                    )
+            )
+        else:
+            result.append(
+                InlineQueryResultAudio(
+                    audio_url = s.url,
+                    title = base.title,
+                    caption = message
                 )
-            else:
-                result.append(
-                    InlineQueryResultAudio(
-                        audio_url = s.url,
-                        title = 'Audio',
-                        caption = message
-                    )
-                )
+            )
     await msg.answer(results = result)
