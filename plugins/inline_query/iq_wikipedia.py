@@ -2,7 +2,7 @@ import wikipedia as wiki
 from pyrogram import Client, filters
 from pyrogram.types import (InlineQueryResultArticle, InputTextMessageContent,
                             InlineKeyboardMarkup, InlineKeyboardButton)
-
+import utils
 
 @Client.on_inline_query(filters.regex(r'^(wiki)\s+?(.+?\s*?)\s*?(-y)?$'))
 async def wiki_handler(bot,msg):
@@ -10,14 +10,15 @@ async def wiki_handler(bot,msg):
     query = msg.matches[0].group(2)
     wiki.set_lang('id')
     print(query)
-    if msg.matches[0].group(3) != None:
+    if msg.matches[0].group(3) == '-y':
         page = wiki.page(query)
-        pesan = f'{page.title}\n\n{wiki.summary(query, auto_suggest = True)}\n\n{page.url}'
+        pesan = f'{page.title}\n\n{wiki.summary(query, auto_suggest = True)}\n\n[link]({utils.encode_url(page.url)})'
         result.append(
             InlineQueryResultArticle(
                 title = query,
                 input_message_content = InputTextMessageContent(
-                    pesan
+                    pesan,
+                    parse_mode = 'markdown'
                 ),
                 url = page.url,
                 description = page.content
@@ -44,6 +45,6 @@ async def wiki_handler(bot,msg):
     await msg.answer(
         results = result,
         switch_pm_text = info,
-        switch_pm_parameter = 'start'
+        switch_pm_parameter = 'start',
     )
     

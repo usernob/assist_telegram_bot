@@ -22,16 +22,16 @@ async def start(bot,msg):
         ]])
     )
     
-@bot.on_message()
-async def allmsg(bot,msg):
-    if msg.from_user.id == sudo:
-        if msg.reply_to_message:
-            if msg.reply_to_message.forward_from:
-                await msg.copy(
-                    msg.reply_to_message.forward_from.id
-                )
-    else:
-        await msg.forward(sudo)
+#@bot.on_message()
+#async def allmsg(bot,msg):
+#    if msg.from_user.id == sudo:
+#        if msg.reply_to_message:
+#            if msg.reply_to_message.forward_from:
+#                await msg.copy(
+#                    msg.reply_to_message.forward_from.id
+#                )
+#    else:
+#        await msg.forward(sudo)
 
 
 if __name__ == '__main__':
