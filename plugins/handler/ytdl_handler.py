@@ -12,13 +12,13 @@ hashid = Hashids(min_length=4, salt=bot_token)
 MAX_SIZE = 2000000000
 
 REGEX = '^(((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?)$'
-apikey = 'AIzaSyBNj-YkGFByB0vmOQcMGPEtuFv2Ef0RTNk'
+#apikey = 'AIzaSyBNj-YkGFByB0vmOQcMGPEtuFv2Ef0RTNk'
 
 @Client.on_message(filters.regex(REGEX) | filters.regex(f'^\/start\s*?(\w+)?$'))
 async def ytdl_handler(bot, msg):
     m1 = await msg.reply('Processing...')
     link = msg.matches[0].group(1)
-    pafy.set_api_key(apikey)
+    #pafy.set_api_key(apikey)
     base = pafy.new(link)
     print(base)
     audio = base.audiostreams
