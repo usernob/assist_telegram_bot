@@ -26,12 +26,22 @@ async def ytsearch_handler(bot,msg):
                 url = data["link"],
                 thumb_url = data["thumbnails"][0]['url'],
                 description = shortdesc,
-                reply_markup = InlineKeyboardMarkup([[
-                    InlineKeyboardButton(
-                        'watch on youtube',
-                        url = data['link']
-                    )
-                ]])
+                reply_markup = InlineKeyboardMarkup([
+                    [
+                        InlineKeyboardButton(
+                            'watch on youtube',
+                            url = data['link']
+                        )
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            'download',
+                            url = f'https://t.me/usernobot?start={data["id"]}'
+                        )
+                    ]
+                ])
             )
         )
+        print(data["thumbnails"][0]['url'])
+        print(f'https://t.me/usernobot?start={data["id"]}')
     await msg.answer(results = result)

@@ -1,33 +1,25 @@
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 from config import bot_token
 from hashids import Hashids
+from db import get_db_connection
 import pafy
 import utils
 import sqlite3
 
-def make_table():
-    connection = sqlite3.connect('db_ytdl.db')
-    
-    connection.executescript('CREATE TABLE IF NOT EXISTS links (id INTEGER PRIMARY KEY AUTOINCREMENT,original_url TEXT NOT NULL)')
-    
-    connection.commit()
-    connection.close()
-
-def get_db_connection():
-    conn = sqlite3.connect('db_ytdl.db')
-    conn.row_factory = sqlite3.Row
-    return conn
-
-make_table()
 
 hashid = Hashids(min_length=4, salt=bot_token)
 
 MAX_SIZE = 2000000000
 
-@Client.on_message(filters.regex('^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$'))
+REGEX = '^(((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?)$'
+apikey = 'AIzaSyBNj-YkGFByB0vmOQcMGPEtuFv2Ef0RTNk'
+
+@Client.on_message(filters.regex(REGEX) | filters.regex(f'^\/start\s*?(\w+)?$'))
 async def ytdl_handler(bot, msg):
-    link = msg.text
+    m1 = await msg.reply('Processing...')
+    link = msg.matches[0].group(1)
+    pafy.set_api_key(apikey)
     base = pafy.new(link)
     print(base)
     audio = base.audiostreams
@@ -35,7 +27,7 @@ async def ytdl_handler(bot, msg):
     keyboard = []
     con = get_db_connection()
     for s in video:
-        print(s)
+        print(s.get_filesize())
         text = f'{s.resolution} - {utils.humansized(s.get_filesize())} - {s.extension}'
         if s.get_filesize() >= MAX_SIZE:
             keyboard.append([
@@ -46,7 +38,7 @@ async def ytdl_handler(bot, msg):
             ])
         else:
             url = s.url
-            cursor = con.execute('INSERT INTO links (original_url) VALUES (?)',(url,))
+            cursor = con.execute('INSERT INTO links (original_url,mime_type) VALUES (?,?)',(url,'video'))
             con.commit()
             row = cursor.lastrowid
             en = hashid.encode(row)
@@ -58,7 +50,6 @@ async def ytdl_handler(bot, msg):
                 )
             ])
     for s in audio:
-        print(s)
         text = f'{s.bitrate} - {utils.humansized(s.get_filesize())} - {s.extension}'
         if s.get_filesize() >= MAX_SIZE:
             keyboard.append([
@@ -69,7 +60,7 @@ async def ytdl_handler(bot, msg):
             ])
         else:
             url = s.url
-            cursor = con.execute('INSERT INTO links (original_url) VALUES (?)',(url,))
+            cursor = con.execute('INSERT INTO links (original_url,mime_type) VALUES (?,?)',(url,'audio'))
             con.commit()
             row = cursor.lastrowid
             en = hashid.encode(row)
@@ -87,16 +78,35 @@ async def ytdl_handler(bot, msg):
 **{base.title}**
 
 by {base.author}
+at {base.published}
 {base.viewcount:,} views
 duration: {base.duration}
 '''
-    await msg.reply_photo(
-        photo = base.thumb,
-        caption = message,
-        parse_mode = 'markdown',
+    thumb = base.bigthumbhd or base.bigthumb or base.thumb
+    print(thumb)
+    await m1.edit_media(
+        InputMediaPhoto(
+            thumb,
+            caption = message,
+            parse_mode = 'markdown'
+        ),
         reply_markup = InlineKeyboardMarkup(keyboard)
     )
 
-@Client.on_callback_query()
+@Client.on_callback_query(filters.regex('^link \= (.+?)$'))
 async def test(bot,msg):
-    print(msg)
+    con = get_db_connection()
+    cur = con.cursor()
+    cb = msg.matches[0].group(1)
+    ori_id = hashid.decode(cb)[0]
+    url = cur.execute('SELECT * FROM links WHERE id = (?)',(ori_id,)).fetchone()
+    #print(tuple(url))
+    file = url['original_url']
+    mime_type = url['mime_type']
+    con.close()
+    if mime_type == 'video':
+        await bot.send_video(msg.message.chat.id,file)
+    elif mime_type == 'audio':
+        await bot.send_audio(msg.message.chat.id,file)
+    else:
+        await bot.send_message(msg.message.chat.id,'something went worng i can fell it')

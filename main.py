@@ -10,20 +10,10 @@ bot = Client(
     )
 
 
-@bot.on_message(filters.command('start'))
-async def start(bot,msg):
-    await msg.reply(
-        'hello what can i help you?',
-        reply_markup = InlineKeyboardMarkup([[
-            InlineKeyboardButton(
-                'download',
-                switch_inline_query_current_chat = 'yts never gonna give you up'
-            )
-        ]])
-    )
-    
+
 #@bot.on_message()
 #async def allmsg(bot,msg):
+#    print(msg)
 #    if msg.from_user.id == sudo:
 #        if msg.reply_to_message:
 #            if msg.reply_to_message.forward_from:

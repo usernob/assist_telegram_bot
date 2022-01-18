@@ -9,42 +9,39 @@ async def wiki_handler(bot,msg):
     result = []
     query = msg.matches[0].group(2)
     wiki.set_lang('id')
-    print(query)
-    if msg.matches[0].group(3) == '-y':
-        page = wiki.page(query)
-        pesan = f'{page.title}\n\n{wiki.summary(query, auto_suggest = True)}\n\n[link]({utils.encode_url(page.url)})'
+    wikilist = wiki.search(query,results = 5)
+    for key in wikilist:
+        url = 'https://id.wikipedia.org/wiki/' + key.replace(' ','_')
         result.append(
             InlineQueryResultArticle(
-                title = query,
+                title = key,
                 input_message_content = InputTextMessageContent(
-                    pesan,
-                    parse_mode = 'markdown'
+                    url
                 ),
-                url = page.url,
-                description = page.content
+                description = url,
+                reply_markup = InlineKeyboardMarkup([
+                    [
+                        InlineKeyboardButton(
+                            'Summary',
+                            callback_data = f'wiki {key.replace(" ", "_")}'
+                        )
+                    ]
+                ])
             )
         )
-    else:
-        wikilist = wiki.search(query,results = 5)
-        for key in wikilist:
-            url = 'https://id.wikipedia.org/wiki/' + key.replace(' ','_')
-            result.append(
-                InlineQueryResultArticle(
-                    title = key,
-                    input_message_content = InputTextMessageContent(
-                        url
-                    ),
-                    description = url
-                )
-            )
     if result == []:
         info = 'sorry no results'
     else:
         info = ''
-    
     await msg.answer(
         results = result,
         switch_pm_text = info,
         switch_pm_parameter = 'start',
     )
     
+@Client.on_callback_query(filters.regex("(wiki)\s(.+?)$"))
+async def wiki_btn(bot, msg):
+    query = msg.matches[0].group(2)
+    page = wiki.page(query)
+    message = f'**{page.title}**\n\n{wiki.summary(query)}\n[link]({utils.encode_url(page.url)})'
+    await msg.edit_message_text(message, parse_mode = 'markdown')
