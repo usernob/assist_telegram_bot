@@ -5,7 +5,6 @@ from hashids import Hashids
 from db import get_db_connection
 import pafy
 import utils
-import sqlite3
 
 
 hashid = Hashids(min_length=4, salt=bot_token)

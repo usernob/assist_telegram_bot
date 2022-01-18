@@ -1,3 +1,5 @@
+import sqlite3
+
 def make_table():
     connection = sqlite3.connect('main.db')
     connection.executescript('DROP TABLE links')
