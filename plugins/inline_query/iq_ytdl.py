@@ -2,12 +2,13 @@ from pyrogram import Client, filters
 from pyrogram.types import (InlineQueryResultArticle, InputTextMessageContent,
                             InlineKeyboardMarkup, InlineKeyboardButton)
 from youtubesearchpython.__future__ import VideosSearch
-
+from config import getme
 
 
 @Client.on_inline_query(filters.regex(r'^(yts)\s+?(.+?\s*?)\s*?$'))
 async def ytsearch_handler(bot,msg):
     result = []
+    me = getme[0]
     query = msg.matches[0].group(2)
     search = VideosSearch(query, limit = 10)
     videosResult = await search.next()
@@ -36,12 +37,11 @@ async def ytsearch_handler(bot,msg):
                     [
                         InlineKeyboardButton(
                             'download',
-                            url = f'https://t.me/usernobot?start={data["id"]}'
+                            url = f'https://t.me/{me.username}?start={data["id"]}'
                         )
                     ]
                 ])
             )
         )
-        print(data["thumbnails"][0]['url'])
-        print(f'https://t.me/usernobot?start={data["id"]}')
+        print(f'https://t.me/{me.username}?start={data["id"]}')
     await msg.answer(results = result)

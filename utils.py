@@ -49,4 +49,15 @@ def humansized(byte):
         byte /= 1024.0
     return f"{byte:.1f}YiB"
 
-
+def humandigit(digit):
+    try:
+        n = int(digit)
+    except Exception as e:
+        print(e)
+    char = ['','rb','jt','M','T']
+    for unit in char:
+        if abs(n) < 1000.0:
+            return f"{n:3.1f} {unit}"
+        n /= 1000
+    return f"{n:.1f} Y"
+    

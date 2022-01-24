@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from config import bot_token,api_id,api_hash,sudo
+from config import bot_token,api_id,api_hash,sudo, getme
 from pyrogram.types import InlineKeyboardMarkup,InlineKeyboardButton
 bot = Client(
         "my_bot",
@@ -25,5 +25,8 @@ bot = Client(
 
 
 if __name__ == '__main__':
-    print('bot has running')
+    with bot:   
+        getme.append(bot.get_me())
+    print('bot was running')
+    print(getme)
     bot.run()

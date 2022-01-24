@@ -2,7 +2,7 @@ import sqlite3
 
 def make_table():
     connection = sqlite3.connect('main.db')
-    connection.executescript('CREATE TABLE IF NOT EXISTS links (id INTEGER PRIMARY KEY AUTOINCREMENT,original_url TEXT NOT NULL, mime_type TEXT NOT NULL)')
+    connection.executescript('CREATE TABLE IF NOT EXISTS links (id INTEGER PRIMARY KEY AUTOINCREMENT,download_url TEXT NOT NULL,youtube_id TEXT NOT NULL, mime_type TEXT NOT NULL)')
     
     connection.commit()
     connection.close()
