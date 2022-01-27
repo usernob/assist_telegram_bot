@@ -10,7 +10,7 @@ bot = Client(
     )
 
 
-
+    
 #@bot.on_message()
 #async def allmsg(bot,msg):
 #    print(msg)

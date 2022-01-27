@@ -69,11 +69,12 @@ async def zsh(bot,msg):
                 else:
                     file.append(i)
             for f in [*dir,*file]:
+                size = f.stat().st_size
                 if f.is_dir():
                     x += f'📂 `{f.name}`\n'
                 else:
                     ex.setdefault(f.suffix,'📄')
-                    x += f'{ex[f.suffix]} `{f.name}`\n'
+                    x += f'{ex[f.suffix]} `{f.name}` `({utils.humansized(size)})`\n'
         
         #handle cwd 
         elif cmd[0] == 'cwd':

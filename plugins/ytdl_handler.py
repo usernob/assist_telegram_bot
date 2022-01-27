@@ -125,7 +125,7 @@ class downprogres():
     def __call__(self, total, recvd, ratio, rate, eta):
         m = f'{recvd * 100 / total:.1f} eta = {eta:.1f}'
         print(m)
-        #self.msg.edit_text(m)
+        msg.edit_text(m)
         
 
 @Client.on_callback_query(filters.regex('^link \= (.+?) (\d)$'))
@@ -146,12 +146,13 @@ async def test(bot,msg):
     con.close()
     up = await bot.send_message(msg.message.chat.id,'uploading....')
     if mime_type == 'video':
-        path = f'{base.title}.{base.streams[n].extension}'
+        path = f'temp/{base.title}.{base.streams[n].extension}'
         base.streams[n].download(
             filepath = path,
             quiet = True,
             callback = downprogres(up))
         await bot.send_video(msg.message.chat.id,file, progress=progress,progress_args = (up,))
+        os.remove(path)
     elif mime_type == 'audio':
         await bot.send_audio(msg.message.chat.id,file)
     else:
