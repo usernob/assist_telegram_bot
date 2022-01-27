@@ -83,7 +83,7 @@ async def zsh(bot,msg):
         elif cmd[0] == 'curl':
             js = await run(cmd)
             try:
-                res = json.dumps(json.loads(js), indent = 1, separators=(',', '= '))
+                res = json.dumps(json.loads(js), indent = 1, separators=(',', ': '))
                 x = f'`{res}`'
             except Exception as e:
                 x = f'`{e}`'
