@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from config import sudo
+from config import sudo, HELP
 import subprocess as s
 import re, json, os, random
 from pathlib import Path
@@ -111,3 +111,11 @@ async def zsh(bot,msg):
         else:
             pesan = x
             await pre.edit_text(pesan, parse_mode = 'markdown')
+
+HELP[utils.filename(__file__)] = """
+Akses ke shell dari Telegram
+
+usage:
+    `/sh <command>`
+
+"""

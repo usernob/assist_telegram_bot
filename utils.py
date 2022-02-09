@@ -1,6 +1,6 @@
 import urllib
 import re
-
+from pathlib import Path
 
 def clear_md(text: str):
     """
@@ -60,4 +60,23 @@ def humandigit(digit):
             return f"{n:3.1f} {unit}"
         n /= 1000
     return f"{n:.1f} Y"
+
+class get_plugins:
+     
+    def __init__(self):
+        self.path = Path.cwd() / 'plugins'
+        self.count = self.count_plugins()
+        self.namefile = self.name_plugins() 
     
+    def count_plugins(self):
+        count = len(sorted(self.path.rglob('**/*.py')))
+        return count
+    
+    def name_plugins(self):
+        path = sorted(self.path.rglob('**/*.py'))
+        files = [i.stem for i in path if i.is_file()]
+        return files
+        
+def filename(file):
+    g = Path(file)
+    return(g.stem)

@@ -3,8 +3,9 @@ from pyrogram import Client, filters
 from pyrogram.types import (InlineQueryResultArticle, InputTextMessageContent,
                             InlineKeyboardMarkup, InlineKeyboardButton)
 import utils
+from config import sudo, getme, HELP
 
-@Client.on_inline_query(filters.regex(r'^(wiki)\s+?(.+?\s*?)\s*?(-y)?$'))
+@Client.on_inline_query(filters.regex(r'^(wiki)\s+?(.+?\s*?)\s*?(-y)?$') & filters.user(sudo))
 async def wiki_handler(bot,msg):
     result = []
     query = msg.matches[0].group(2)
@@ -45,3 +46,16 @@ async def wiki_btn(bot, msg):
     page = wiki.page(query)
     message = f'**{page.title}**\n\n{wiki.summary(query)}\n[link]({utils.encode_url(page.url)})'
     await msg.edit_message_text(message, parse_mode = 'markdown')
+
+
+HELP[utils.filename(__file__)] = '''
+Search wikipedia 
+
+usage:
+    `/wiki <query>`
+
+inline:
+    `@{username} wiki <query>`
+
+
+'''

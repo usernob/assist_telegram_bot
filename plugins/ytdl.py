@@ -1,6 +1,7 @@
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
-from config import bot_token, api_key
+from youtubesearchpython.__future__ import VideosSearch
+from config import getme, sudo, bot_token, api_key
 from hashids import Hashids
 from db import get_db_connection
 import utils
@@ -8,6 +9,46 @@ import pafy
 import utils
 import os
 
+@Client.on_inline_query(filters.regex(r'^(yt)\s+?(.+?\s*?)\s*?$') & filters.user(sudo))
+async def ytsearch_handler(bot,msg):
+    result = []
+    me = getme[0]
+    query = msg.matches[0].group(2)
+    search = VideosSearch(query, limit = 10)
+    videosResult = await search.next()
+    for data in videosResult['result']:
+        #print('\n\n')
+        #print(data)
+        shortdesc = f"{data['publishedTime']} - {data['duration']}\n{data['viewCount']['short']}\n{data['descriptionSnippet'][0]['text'] if data['descriptionSnippet'] != None else 'None'}"
+        pesan = f"{data['accessibility']['title']}\n[link]({data['link']})"
+        result.append(
+            InlineQueryResultArticle(
+                title = data['title'],
+                input_message_content = InputTextMessageContent(
+                    pesan,
+                    parse_mode = 'markdown'
+                ),
+                url = data["link"],
+                thumb_url = data["thumbnails"][0]['url'],
+                description = shortdesc,
+                reply_markup = InlineKeyboardMarkup([
+                    [
+                        InlineKeyboardButton(
+                            'watch on youtube',
+                            url = data['link']
+                        )
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            'download',
+                            url = f'https://t.me/{me.username}?start={data["id"]}'
+                        )
+                    ]
+                ])
+            )
+        )
+        #print(f'https://t.me/{me.username}?start={data["id"]}')
+    await msg.answer(results = result)
 
 hashid = Hashids(min_length=4, salt=bot_token)
 
@@ -18,10 +59,8 @@ cached = {}
 
 def get_stream(link):
     if link in cached:
-        print('='*500)
         base = cached[link]
     else:
-        print('konsol')
         base = pafy.new(link)
         cached[link] = base
         base = cached[link]
@@ -115,7 +154,7 @@ duration: {base.duration}
     )
 
 def progress(current, total, msg):
-    m = f"uploading {current * 100 / total:.1f}%"
+    m = f"\ruploading {current * 100 / total:.1f}%"
     print(m)
     msg.edit_text(m)
     
@@ -124,8 +163,8 @@ class downprogres():
         self.msg = msg
     def __call__(self, total, recvd, ratio, rate, eta):
         m = f'{recvd * 100 / total:.1f} eta = {eta:.1f}'
-        print(m)
-        msg.edit_text(m)
+        print(m, end = '\r')
+        #msg.edit_text(m)
         
 
 @Client.on_callback_query(filters.regex('^link \= (.+?) (\d)$'))
@@ -146,14 +185,21 @@ async def test(bot,msg):
     con.close()
     up = await bot.send_message(msg.message.chat.id,'uploading....')
     if mime_type == 'video':
-        path = f'temp/{base.title}.{base.streams[n].extension}'
+        path = f'temp/{base.title}-{base.streams[n].resolution}.{base.streams[n].extension}'
         base.streams[n].download(
             filepath = path,
             quiet = True,
+            progress = 'KB',
             callback = downprogres(up))
         await bot.send_video(msg.message.chat.id,file, progress=progress,progress_args = (up,))
         os.remove(path)
     elif mime_type == 'audio':
-        await bot.send_audio(msg.message.chat.id,file)
+        path = f'temp/{base.title}-{base.streams[n].bitrate}.{base.streams[n].extension}'
+        base.streams[n].download(
+            filepath = path,
+            quiet = True,
+            callback = downprogres(up))
+        await bot.send_audio(msg.message.chat.id,file, progress=progress,progress_args = (up,))
+        os.remove(path)
     else:
         await bot.send_message(msg.message.chat.id,'something went worng i can fell it')
