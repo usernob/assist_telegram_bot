@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto, InlineQueryResultArticle
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto, InlineQueryResultArticle, InputTextMessageContent
 from youtubesearchpython.__future__ import VideosSearch
 from config import getme, sudo, bot_token, api_key
 from hashids import Hashids
