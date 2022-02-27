@@ -19,7 +19,7 @@ with bot:
 async def start(bot,msg):
     print(msg)
     await msg.reply(
-        '\U0001f600 hello what can i help you?',
+        'hello what can i help you?',
         reply_markup = InlineKeyboardMarkup([
             [
                 InlineKeyboardButton(
